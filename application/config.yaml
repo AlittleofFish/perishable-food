@@ -1,0 +1,304 @@
+
+version: 1.0.0
+
+# GO SDK使用的客户端部分。
+client:
+  # 这个应用程序是属于哪个组织的，这里就填那个组织的组织名
+  organization: org1
+
+  # 日志登记
+  logging:
+    level: info
+
+  # MSP证书的根路径
+  cryptoconfig:
+    path: ../deploy/crypto-config
+
+  # 默认即可，以下都是可选（optional）的配置
+  credentialStore:
+    path: "/tmp/state-store"
+    cryptoStore:
+      path: /tmp/msp
+
+  # 这里配置的是加密组件的一些属性，默认即可
+  BCCSP:
+    security:
+      enabled: true
+      default:
+        provider: "SW"
+      hashAlgorithm: "SHA2"
+      softVerify: true
+      level: 256
+
+#  tlsCerts:
+#    # [Optional]. Use system certificate pool when connecting to peers, orderers (for negotiating TLS) Default: false
+#    systemCertPool: true
+#
+#    # [Optional]. Client key and cert for TLS handshake with peers and orderers
+#    client:
+#      key:
+#        path: ${FABRIC_SDK_GO_PROJECT_PATH}/${CRYPTOCONFIG_FIXTURES_PATH}/peerOrganizations/tls.example.com/users/User1@tls.example.com/tls/client.key
+#      cert:
+#        path: ${FABRIC_SDK_GO_PROJECT_PATH}/${CRYPTOCONFIG_FIXTURES_PATH}/peerOrganizations/tls.example.com/users/User1@tls.example.com/tls/client.crt
+
+# 通道相关配置
+channels:
+  # 通道的名称
+  mychannel:
+    # 【必须】orderer的配置，填orderer的域名
+    orderers:
+      - orderer.gdzce.cn
+
+    # 【必须】节点配置
+    peers:
+      # 填写这个应用程序所属组织的Peer的域名
+      node1.organization1.gdzce.cn:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+
+      node2.organization1.gdzce.cn:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+
+      node1.organization2.gdzce.cn:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+
+      node2.organization2.gdzce.cn:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+
+      node1.organization3.gdzce.cn:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+
+      node2.organization3.gdzce.cn:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+
+    # 【可选】策略配置
+    policies:
+      queryChannelConfig:
+        minResponses: 1
+        maxTargets: 1
+        retryOpts:
+          attempts: 5
+          initialBackoff: 500ms
+          maxBackoff: 5s
+          backoffFactor: 2.0
+
+# 组织配置，列举了参与该网络的所有组织
+organizations:
+  # 组织的名称
+  org1:
+    # 该组织的MSPID
+    mspid: Organization1MSP
+
+    # 这个组织的MSP证书路径
+    cryptoPath:  peerOrganizations/organization1.gdzce.cn/users/{username}@organization1.gdzce.cn/msp
+
+    # 这个组织下属的节点
+    peers:
+      - node1.organization1.gdzce.cn
+      - node2.organization1.gdzce.cn
+
+  # 组织的名称
+  org2:
+    # 该组织的MSPID
+    mspid: Organization2MSP
+
+    # 这个组织的MSP证书路径
+    cryptoPath:  peerOrganizations/organization2.gdzce.cn/users/{username}@organization2.gdzce.cn/msp
+
+    # 这个组织下属的节点
+    peers:
+      - node1.organization2.gdzce.cn
+      - node2.organization2.gdzce.cn
+
+  # 组织的名称
+  org3:
+    # 该组织的MSPID
+    mspid: Organization3MSP
+
+    # 这个组织的MSP证书路径
+    cryptoPath:  peerOrganizations/organization3.gdzce.cn/users/{username}@organization3.gdzce.cn/msp
+
+    # 这个组织下属的节点
+    peers:
+      - node1.organization3.gdzce.cn
+      - node2.organization3.gdzce.cn
+
+  # orderer组织
+  ordererorg:
+    # orderer组织的MSPID
+    mspID: "OrdererMSP"
+
+    # orderer组织的MSP证书路径
+    cryptoPath: ordererOrganizations/gdzce.cn/users/{username}@gdzce.cn/msp
+
+# 指定orderer
+orderers:
+  orderer.gdzce.cn:
+    url: localhost:7050
+
+    # grpc配置
+    grpcOptions:
+      ssl-target-name-override: orderer.gdzce.cn
+      keep-alive-time: 0s
+      keep-alive-timeout: 20s
+      keep-alive-permit: false
+      fail-fast: false
+      allow-insecure: true
+
+    # tlsCACerts:
+    #   # Certificate location absolute path
+    #   path: ../deploy/crypto-config/ordererOrganizations/gdzce.cn/tlsca/tlsca.gdzce.cn-cert.pem
+
+# 指定peer
+peers:
+  node1.organization2.gdzce.cn:
+    url: localhost:9051
+    eventUrl: localhost:9053
+
+    # grpc配置
+    grpcOptions:
+      ssl-target-name-override: node1.organization2.gdzce.cn
+      keep-alive-time: 0s
+      keep-alive-timeout: 20s
+      keep-alive-permit: false
+      fail-fast: false
+      allow-insecure: true
+
+    # tlsCACerts:
+    #   # Certificate location absolute path
+    #   path: ../deploy/crypto-config/peerOrganizations/organization2.gdzce.cn/tlsca/tlsca.organization2.gdzce.cn-cert.pem
+
+  node2.organization2.gdzce.cn:
+    url: localhost:10051
+    eventUrl: localhost:10053
+    # grpc配置
+    grpcOptions:
+      ssl-target-name-override: node2.organization2.gdzce.cn
+      keep-alive-time: 0s
+      keep-alive-timeout: 20s
+      keep-alive-permit: false
+      fail-fast: false
+      allow-insecure: true
+
+    # tlsCACerts:
+    #   # Certificate location absolute path
+    #   path: ../deploy/crypto-config/peerOrganizations/organization2.gdzce.cn/tlsca/tlsca.organization2.gdzce.cn-cert.pem
+
+  node1.organization3.gdzce.cn:
+    url: localhost:11051
+    eventUrl: localhost:11053
+    # grpc配置
+    grpcOptions:
+      ssl-target-name-override: node1.organization3.gdzce.cn
+      keep-alive-time: 0s
+      keep-alive-timeout: 20s
+      keep-alive-permit: false
+      fail-fast: false
+      allow-insecure: true
+
+    # tlsCACerts:
+    #   # Certificate location absolute path
+    #   path: ../deploy/crypto-config/peerOrganizations/organization3.gdzce.cn/tlsca/tlsca.organization3.gdzce.cn-cert.pem
+
+  node2.organization3.gdzce.cn:
+    url: localhost:12051
+    eventUrl: localhost:12053
+    # grpc配置
+    grpcOptions:
+      ssl-target-name-override: node2.organization3.gdzce.cn
+      keep-alive-time: 0s
+      keep-alive-timeout: 20s
+      keep-alive-permit: false
+      fail-fast: false
+      allow-insecure: true
+
+    # tlsCACerts:
+    #   # Certificate location absolute path
+    #   path: ../deploy/crypto-config/peerOrganizations/organization3.gdzce.cn/tlsca/tlsca.organization3.gdzce.cn-cert.pem
+
+  node1.organization1.gdzce.cn:
+    url: localhost:7051
+    eventUrl: localhost:7053
+    # grpc配置
+    grpcOptions:
+      ssl-target-name-override: node1.organization1.gdzce.cn
+      keep-alive-time: 0s
+      keep-alive-timeout: 20s
+      keep-alive-permit: false
+      fail-fast: false
+      allow-insecure: true
+
+    # tlsCACerts:
+    #   # Certificate location absolute path
+    #   path: ../deploy/crypto-config/peerOrganizations/organization1.gdzce.cn/tlsca/tlsca.organization1.gdzce.cn-cert.pem
+
+  node2.organization1.gdzce.cn:
+    url: localhost:8051
+    eventUrl: localhost:8053
+    # grpc配置
+    grpcOptions:
+      ssl-target-name-override: node2.organization1.gdzce.cn
+      keep-alive-time: 0s
+      keep-alive-timeout: 20s
+      keep-alive-permit: false
+      fail-fast: false
+      allow-insecure: true
+
+    # tlsCACerts:
+    #   # Certificate location absolute path
+    #   path: ../deploy/crypto-config/peerOrganizations/organization1.gdzce.cn/tlsca/tlsca.organization1.gdzce.cn-cert.pem
+
+entityMatchers:
+  peer:
+    - pattern: (\w+).organization1.gdzce.(\w+)
+      urlSubstitutionExp: localhost:7051
+      sslTargetOverrideUrlSubstitutionExp: node1.organization1.gdzce.cn
+      mappedHost: node1.organization1.gdzce.cn
+
+    - pattern: (\w+).organization1.gdzce.(\w+)
+      urlSubstitutionExp: localhost:8051
+      sslTargetOverrideUrlSubstitutionExp: node2.organization1.gdzce.cn
+      mappedHost: node2.organization1.gdzce.cn
+
+    - pattern: (\w+).organization2.gdzce.(\w+)
+      urlSubstitutionExp: localhost:9051
+      sslTargetOverrideUrlSubstitutionExp: node1.organization2.gdzce.cn
+      mappedHost: node1.organization2.gdzce.cn
+
+    - pattern: (\w+).organization2.gdzce.(\w+)
+      urlSubstitutionExp: localhost:10051
+      sslTargetOverrideUrlSubstitutionExp: node2.organization2.gdzce.cn
+      mappedHost: node2.organization2.gdzce.cn
+
+    - pattern: (\w+).organization3.gdzce.(\w+)
+      urlSubstitutionExp: localhost:11051
+      sslTargetOverrideUrlSubstitutionExp: node1.organization3.gdzce.cn
+      mappedHost: node1.organization3.gdzce.cn
+
+    - pattern: (\w+).organization3.gdzce.(\w+)
+      urlSubstitutionExp: localhost:12051
+      sslTargetOverrideUrlSubstitutionExp: node2.organization3.gdzce.cn
+      mappedHost: node2.organization3.gdzce.cn
+
+  orderer:
+    - pattern: (\w+).gdzce.(\w+)
+      urlSubstitutionExp: localhost:7050
+      sslTargetOverrideUrlSubstitutionExp: orderer.gdzce.cn
+      mappedHost: orderer.gdzce.cn
